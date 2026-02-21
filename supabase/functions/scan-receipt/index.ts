@@ -1,6 +1,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") ?? "";
+const GEMINI_URL =
+  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 const SYSTEM_PROMPT = `You are a receipt parser. The user will send you a receipt image.
 Extract ONLY these fields from the receipt and return a JSON object:
@@ -28,8 +30,8 @@ Deno.serve(async (req: Request) => {
     });
   }
 
-  if (!OPENAI_API_KEY) {
-    return json({ error: "OPENAI_API_KEY not configured." }, 500);
+  if (!GEMINI_API_KEY) {
+    return json({ error: "GEMINI_API_KEY not configured." }, 500);
   }
 
   let base64Image: string;
@@ -47,38 +49,40 @@ Deno.serve(async (req: Request) => {
     return json({ error: "Failed to read image." }, 400);
   }
 
-  const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+  const geminiRes = await fetch(GEMINI_URL, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
-      max_tokens: 256,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+      system_instruction: {
+        parts: [{ text: SYSTEM_PROMPT }],
+      },
+      contents: [
         {
-          role: "user",
-          content: [
-            { type: "text", text: "Parse this receipt." },
+          parts: [
+            { text: "Parse this receipt." },
             {
-              type: "image_url",
-              image_url: { url: `data:${mimeType};base64,${base64Image}`, detail: "low" },
+              inline_data: {
+                mime_type: mimeType,
+                data: base64Image,
+              },
             },
           ],
         },
       ],
+      generationConfig: {
+        maxOutputTokens: 256,
+        responseMimeType: "application/json",
+      },
     }),
   });
 
-  if (!openaiRes.ok) {
-    const err = await openaiRes.text();
-    return json({ error: `OpenAI error: ${err}` }, 502);
+  if (!geminiRes.ok) {
+    const err = await geminiRes.text();
+    return json({ error: `Gemini error: ${err}` }, 502);
   }
 
-  const openaiData = await openaiRes.json();
-  const raw = openaiData.choices?.[0]?.message?.content ?? "";
+  const geminiData = await geminiRes.json();
+  const raw = geminiData.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
 
   let parsed: Record<string, unknown>;
   try {

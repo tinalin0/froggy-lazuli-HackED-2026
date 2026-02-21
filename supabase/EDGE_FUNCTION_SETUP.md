@@ -14,11 +14,13 @@ supabase link --project-ref YOUR_PROJECT_REF
 ```
 (Your project ref is the part of your Supabase URL after `https://` and before `.supabase.co`)
 
-## 3. Set the OpenAI secret
+## 3. Set the Gemini secret
 
 ```bash
-supabase secrets set OPENAI_API_KEY=sk-your-openai-key-here
+supabase secrets set GEMINI_API_KEY=your-gemini-api-key-here
 ```
+
+You can obtain a Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
 
 ## 4. Deploy the function
 
