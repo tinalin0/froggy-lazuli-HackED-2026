@@ -12,7 +12,11 @@ Extract all information and return a JSON object:
 }
 Rules:
 - List every individual line item in the items array.
+<<<<<<< HEAD
 - "price" is the total for that line (quantity x unit price).
+=======
+- "price" is the total for that line (quantity × unit price).
+>>>>>>> 604a4f791a1c5309202818171231588ac79cb27b
 - All amounts must be positive numbers with at most 2 decimal places.
 - If a field is not present on the receipt, set it to null.
 - Use an empty array for items if none can be identified.

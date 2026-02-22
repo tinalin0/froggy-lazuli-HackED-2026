@@ -36,6 +36,7 @@ export default function ReceiptScanner({ onResult, onClose }) {
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
+<<<<<<< HEAD
 
       const formData = new FormData();
       formData.append('image', file);
@@ -54,6 +55,25 @@ export default function ReceiptScanner({ onResult, onClose }) {
 
       const data = await res.json();
       if (!res.ok) throw new Error((data.error ?? JSON.stringify(data)) + (data.raw ? ` | raw: ${data.raw}` : ''));
+=======
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+      const res = await fetch(`${supabaseUrl}/functions/v1/scan-receipt`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session?.access_token ?? anonKey}`,
+          apikey: anonKey,
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error ?? 'Scan failed.');
+>>>>>>> 604a4f791a1c5309202818171231588ac79cb27b
 
       setResult(data);
       setStatus('done');
