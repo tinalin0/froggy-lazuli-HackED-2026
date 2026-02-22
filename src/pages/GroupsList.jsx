@@ -1,12 +1,19 @@
 import { Link } from 'react-router-dom';
-import { Plus, Users } from 'lucide-react';
+import { Plus, Users, Trash2 } from 'lucide-react';
 import { useGroups } from '../hooks/useGroups';
 import EmptyState from '../components/EmptyState';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 
 export default function GroupsList() {
-  const { groups, loading, error, reload } = useGroups();
+  const { groups, loading, error, reload, deleteGroup, deleting } = useGroups();
+
+  const handleDelete = async (groupId) => {
+    if (window.confirm('Are you sure you want to delete this group?')) {
+      await deleteGroup(groupId);  // Calls deleteGroup function
+      // Optionally, show feedback or success message
+    }
+  };
 
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} onRetry={reload} />;
@@ -33,21 +40,25 @@ export default function GroupsList() {
             {groups.map((g) => {
               const net = g.net ?? 0;
               return (
-                <Link
+                <div
                   key={g.id}
-                  to={`/groups/${g.id}`}
-                  className="flex items-center gap-4 p-5 bg-white rounded-2xl border border-gray-100 shadow-sm active:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between gap-4 p-5 bg-white rounded-2xl border border-gray-100 shadow-sm active:bg-gray-50 transition-colors"
                 >
-                  <div className="w-14 h-14 bg-[#CFE0D8] rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Users size={24} className="text-[#588884]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-[#344F52] text-base truncate">{g.name}</p>
-                    <p className="text-sm text-gray-500 mt-0.5">
-                      {g.member_count} member{g.member_count !== 1 ? 's' : ''}
-                    </p>
-                  </div>
-                  <div className="text-right flex-shrink-0">
+                  <Link
+                    to={`/groups/${g.id}`}
+                    className="flex items-center gap-4"
+                  >
+                    <div className="w-14 h-14 bg-[#CFE0D8] rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Users size={24} className="text-[#588884]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-[#344F52] text-base truncate">{g.name}</p>
+                      <p className="text-sm text-gray-500 mt-0.5">
+                        {g.member_count} member{g.member_count !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                  </Link>
+                  {/* <div className="text-right flex-shrink-0">
                     {net === 0 ? (
                       <span className="text-xs font-medium text-gray-400">settled up</span>
                     ) : net > 0 ? (
@@ -61,8 +72,16 @@ export default function GroupsList() {
                         <p className="text-base font-bold text-rose-500">${Math.abs(net).toFixed(2)}</p>
                       </>
                     )}
-                  </div>
-                </Link>
+                  </div> */}
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => handleDelete(g.id)}
+                    className="text-gray-300 hover:text-gray-500"
+                    disabled={deleting}  // Disable the button while deleting
+                  >
+                    {deleting ? <LoadingSpinner /> : <Trash2 size={18} />}
+                  </button>
+                </div>
               );
             })}
           </div>

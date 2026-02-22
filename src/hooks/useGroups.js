@@ -5,6 +5,7 @@ export function useGroups() {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deleting, setDeleting] = useState(false); // Track if a deletion is in progress
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -28,9 +29,16 @@ export function useGroups() {
   }, [load]);
 
   const remove = useCallback(async (groupId) => {
-    await deleteGroup(groupId);
-    setGroups((prev) => prev.filter((g) => g.id !== groupId));
+    setDeleting(true); // Set deleting state to true
+    try {
+      await deleteGroup(groupId);  // Call the delete function from group.js
+      setGroups((prev) => prev.filter((g) => g.id !== groupId));  // Update the local state
+    } catch (err) {
+      setError('Failed to delete group');
+    } finally {
+      setDeleting(false); // Set deleting state back to false
+    }
   }, []);
 
-  return { groups, loading, error, reload: load, createGroup: create, deleteGroup: remove };
+  return { groups, loading, error, reload: load, createGroup: create, deleteGroup: remove, deleting };
 }
