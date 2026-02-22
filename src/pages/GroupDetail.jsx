@@ -53,12 +53,70 @@ function AddMemberSheet({ onAdd, onClose }) {
   );
 }
 
+function EditWalletSheet({ member, onSave, onClose }) {
+  const [address, setAddress] = useState(member?.wallet_address ?? '');
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErr(null);
+    const v = address.trim();
+    if (v && !/^0x[a-fA-F0-9]{40}$/.test(v)) {
+      setErr('Use 0x followed by 40 hex characters.');
+      return;
+    }
+    setSaving(true);
+    try {
+      await onSave(member.id, v || null);
+      onClose();
+    } catch (e) {
+      setErr(e.message || 'Failed to save.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!member) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center">
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-lg bg-white rounded-t-3xl p-6 shadow-2xl">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="font-bold text-[#344F52] text-base">Wallet for {member.name}</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100">
+            <X size={18} />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="0x..."
+            className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#588884] bg-white font-mono"
+          />
+          {err && <p className="text-sm text-rose-600 mt-2">{err}</p>}
+          <button
+            type="submit"
+            disabled={saving}
+            className="mt-4 w-full py-3 text-sm font-semibold text-white bg-[#588884] rounded-xl disabled:opacity-40"
+          >
+            {saving ? '…' : 'Save'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function GroupDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { group, loading, error, reload, balances, settlements, memberMap, addMember, removeMember, deleteExpense } = useGroup(id);
+  const { group, loading, error, reload, balances, settlements, memberMap, addMember, removeMember, deleteExpense, updateMemberWallet } = useGroup(id);
   const [showAddMember, setShowAddMember] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
+  const [walletMember, setWalletMember] = useState(null);
   const [fabHovered, setFabHovered] = useState(false);
   const [fabPressed, setFabPressed] = useState(false);
 
@@ -127,20 +185,30 @@ export default function GroupDetail() {
         </div>
         <div className="flex gap-4 flex-wrap">
           {group.members.map((m) => (
-            <button
-              key={m.id}
-              onClick={() => handleRemoveMember(m)}
-              className="flex flex-col items-center gap-1.5 group"
-              title={`Tap to remove ${m.name}`}
-            >
+            <div key={m.id} className="flex flex-col items-center gap-1.5">
               <div className="relative">
-                <Avatar name={m.name} size="lg" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-gray-200 group-hover:bg-rose-400 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                  <X size={9} className="text-white" />
-                </span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveMember(m)}
+                  className="group flex flex-col items-center"
+                  title={`Remove ${m.name}`}
+                >
+                  <Avatar name={m.name} size="lg" />
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-gray-200 group-hover:bg-rose-400 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                    <X size={9} className="text-white" />
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setWalletMember(m)}
+                  className="mt-1 block w-full text-xs text-[#588884] hover:underline text-center"
+                  title="Set wallet for on-chain settlement"
+                >
+                  {m.wallet_address ? `${String(m.wallet_address).slice(0, 6)}…${String(m.wallet_address).slice(-4)}` : 'Set wallet'}
+                </button>
               </div>
               <span className="text-sm text-[#344F52] font-medium max-w-[64px] truncate">{m.name}</span>
-            </button>
+            </div>
           ))}
 
           {/* Add member — inline circle matching avatar format */}
@@ -272,6 +340,13 @@ export default function GroupDetail() {
         <AddMemberSheet
           onAdd={addMember}
           onClose={() => setShowAddMember(false)}
+        />
+      )}
+      {walletMember && (
+        <EditWalletSheet
+          member={walletMember}
+          onSave={updateMemberWallet}
+          onClose={() => setWalletMember(null)}
         />
       )}
     </div>

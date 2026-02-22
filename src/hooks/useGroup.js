@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getGroup } from '../lib/groups';
-import { addMember, removeMember } from '../lib/members';
+import { addMember, removeMember, updateMemberWallet as updateMemberWalletApi } from '../lib/members';
 import { addExpense, deleteExpense, settleAllInGroup } from '../lib/expenses';
 import { computeBalances, minimizeTransactions } from '../lib/balances';
+import { getStoredWallet, setStoredWallet } from '../lib/memberWalletStorage';
 
 export function useGroup(groupId) {
   const [group, setGroup] = useState(null);
@@ -15,6 +16,13 @@ export function useGroup(groupId) {
     setError(null);
     try {
       const data = await getGroup(groupId);
+      // Merge wallet addresses from localStorage when DB has no wallet_address column
+      if (data?.members) {
+        data.members = data.members.map((m) => ({
+          ...m,
+          wallet_address: m.wallet_address || getStoredWallet(m.id) || undefined,
+        }));
+      }
       setGroup(data);
     } catch (err) {
       setError(err.message);
@@ -58,6 +66,15 @@ export function useGroup(groupId) {
     },
     settleAll: async () => {
       await settleAllInGroup(groupId);
+      await load();
+    },
+    updateMemberWallet: async (memberId, walletAddress) => {
+      setStoredWallet(memberId, walletAddress);
+      try {
+        await updateMemberWalletApi(memberId, walletAddress);
+      } catch {
+        // DB may not have wallet_address column yet; wallet is saved in localStorage
+      }
       await load();
     },
   };

@@ -12,10 +12,11 @@ create table if not exists groups (
 
 -- Members
 create table if not exists members (
-  id         uuid primary key default gen_random_uuid(),
-  group_id   uuid not null references groups(id) on delete cascade,
-  name       text not null,
-  created_at timestamptz not null default now()
+  id             uuid primary key default gen_random_uuid(),
+  group_id       uuid not null references groups(id) on delete cascade,
+  name           text not null,
+  wallet_address text check (wallet_address is null or (wallet_address ~ '^0x[a-fA-F0-9]{40}$')),
+  created_at     timestamptz not null default now()
 );
 
 -- Expenses
@@ -62,3 +63,20 @@ create index if not exists members_group_id_idx        on members(group_id);
 create index if not exists expenses_group_id_idx       on expenses(group_id);
 create index if not exists expense_shares_expense_idx  on expense_shares(expense_id);
 create index if not exists expense_shares_member_idx   on expense_shares(member_id);
+
+-- ============================================================
+-- On-chain settlement records (optional; for proof page lookup)
+-- ============================================================
+create table if not exists group_settlements (
+  id                uuid primary key default gen_random_uuid(),
+  group_id          uuid not null references groups(id) on delete cascade,
+  settlement_id     text not null,
+  tx_hash           text,
+  settlement_hash   text not null,
+  committed_by      text not null,
+  created_at        timestamptz not null default now()
+);
+create index if not exists group_settlements_group_id_idx on group_settlements(group_id);
+
+alter table group_settlements enable row level security;
+create policy "allow all" on group_settlements for all using (true) with check (true);

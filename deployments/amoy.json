@@ -1,0 +1,170 @@
+{
+  "chainId": 80002,
+  "contractAddress": "0x9D66f567e59C98AfeC3E035A6B926DA848bceE9B",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "settlementId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "groupId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "settlementHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "committedBy",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "SettlementCommitted",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "groupId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "settlementHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "currency",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalCents",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address[]",
+          "name": "participants",
+          "type": "address[]"
+        }
+      ],
+      "name": "commitSettlement",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "settlementId",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "settlementId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getSettlement",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "groupId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "settlementHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "currency",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalCents",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "committedBy",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "settlements",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "groupId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "settlementHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "currency",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalCents",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "committedBy",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+}

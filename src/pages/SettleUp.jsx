@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { CheckCircle, ArrowRight, Loader2, Link2 } from 'lucide-react';
 import { useGroup } from '../hooks/useGroup';
 import Avatar from '../components/Avatar';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -105,6 +105,13 @@ export default function SettleUp() {
           })}
         </div>
       </div>
+
+      <Link
+        to={`/groups/${id}/finalize`}
+        className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-semibold text-white bg-[#588884] rounded-xl shadow-sm active:bg-[#476d6a] transition-colors mb-3"
+      >
+        <Link2 size={16} /> Commit to chain (Polygon Amoy)
+      </Link>
 
       <button
         onClick={handleSettleAll}
