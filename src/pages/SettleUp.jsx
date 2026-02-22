@@ -124,7 +124,7 @@ export default function SettleUp() {
                   <span className="text-sm font-semibold text-[#344F52] truncate">
                     {from?.name ?? '?'}
                   </span>
-                  <span className="text-xs text-gray-400">pays</span>
+                  <span className="text-xs text-gray-400 hidden sm:block">pays</span>
                 </div>
               </div>
 
@@ -135,7 +135,7 @@ export default function SettleUp() {
                   <span className="text-sm font-semibold text-[#344F52] truncate">
                     {to?.name ?? '?'}
                   </span>
-                  <span className="text-xs text-gray-400">receives</span>
+                  <span className="text-xs text-gray-400 hidden sm:block">receives</span>
                 </div>
                 <Avatar name={to?.name ?? '?'} size="md" />
               </div>
